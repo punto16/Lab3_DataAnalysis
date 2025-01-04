@@ -10,6 +10,9 @@ namespace Gamekit3D
     public class PlayerController : MonoBehaviour, IMessageReceiver
     {
         protected static PlayerController s_Instance;
+
+        public SendToServer sendToServer;
+
         public static PlayerController instance { get { return s_Instance; } }
 
         public bool respawning { get { return m_Respawning; } }
@@ -677,6 +680,7 @@ namespace Gamekit3D
             m_VerticalSpeed = 0f;
             m_Respawning = true;
             m_Damageable.isInvulnerable = true;
+            sendToServer.LogPositionOnHitLocal();
         }
     }
 }

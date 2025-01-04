@@ -8,13 +8,14 @@ namespace Gamekit3D
     public class DeathVolume : MonoBehaviour
     {
         public new AudioSource audio;
-
+        public SendToServer sendToServer;
 
         void OnTriggerEnter(Collider other)
         {
             var pc = other.GetComponent<PlayerController>();
             if (pc != null)
             {
+                sendToServer.LogPositionOnHitLocal();
                 pc.Die(new Damageable.DamageMessage());
             }
             if (audio != null)
