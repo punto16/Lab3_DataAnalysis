@@ -8,6 +8,49 @@ public class HeatMapParent : MonoBehaviour
 
     public GameObject cubeHeatMapReference;
 
+    [HideInInspector]
+    public int cubeSize = 5; //2 to 15
+
+    [HideInInspector]
+    public float transparency = 0.8f; //0 to 1
+
+    public void OnEditParameters()
+    {
+        Vector3 newScale = new Vector3(cubeSize, cubeSize, cubeSize);
+        cubeHeatMapReference.GetComponent<Transform>().localScale = newScale;
+        cubeHeatMapReference.GetComponent<CubeHeatMap>().CheckCollisionWithOtherCubes();
+
+        for (int index = 0; index < colorRamp.Count; index++)
+        {
+            Color color = colorRamp[index];
+            color.a = transparency;
+            colorRamp[index] = color;
+        }
+
+        foreach (var cubeHeatMap in cubeHeatMapsList)
+        {
+            cubeHeatMap.GetComponent<Transform>().localScale = newScale;
+        }
+        foreach (var cubeHeatMap in cubeHeatMapsList)
+        {
+            cubeHeatMap.GetComponent<CubeHeatMap>().CheckCollisionWithOtherCubes();
+        }
+    }
+
+    public List<Color> colorRamp;
+
+    private void OnValidate()
+    {
+        if (colorRamp == null || colorRamp.Count < 2)
+        {
+            colorRamp = new List<Color>
+            {
+                Color.blue,
+                Color.red
+            };
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {

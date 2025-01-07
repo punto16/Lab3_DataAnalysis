@@ -8,7 +8,6 @@ public class CubeHeatMap : MonoBehaviour
     private Material mat;
     public int dangerZone = 1;
 
-
     // Start is called before the first frame update
     void Start()
     {
@@ -59,40 +58,9 @@ public class CubeHeatMap : MonoBehaviour
 
     public void IncreaseDangerZone(int i)
     {
-        if (i > 5) i = 5;
+        if (i >= heatMapParent.colorRamp.Count) i = heatMapParent.colorRamp.Count;
         dangerZone = i;
         if (mat == null) mat = heatMapParent.cubeHeatMapReference.GetComponent<MeshRenderer>().material;
-        switch (dangerZone)
-        {
-            case 1:
-                {
-                    mat.color = new Color(0.1391918f, 1.0f, 0.0f, 0.8705882f);
-                    break;
-                }
-            case 2:
-                {
-                    mat.color = new Color(0.6836615f, 1.0f, 0.0f, 0.8705882f);
-                    break;
-                }
-            case 3:
-                {
-                    mat.color = new Color(1.0f, 0.8518007f, 0.0f, 0.8705882f);
-                    break;
-                }
-            case 4:
-                {
-                    mat.color = new Color(1.0f, 0.5203068f, 0.0f, 0.8705882f);
-                    break;
-                }
-            case 5:
-                {
-                    mat.color = new Color(1.0f, 0.0f, 0.0f, 0.8705882f);
-                    break;
-                }
-            default:
-                {
-                    break;
-                }
-        }
+        mat.color = heatMapParent.colorRamp[dangerZone - 1];
     }
 }
