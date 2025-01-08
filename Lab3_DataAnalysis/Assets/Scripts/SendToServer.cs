@@ -1,3 +1,4 @@
+using Gamekit3D.Message;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.Networking;
 
-public class SendToServer : MonoBehaviour
+public class SendToServer : MonoBehaviour, IMessageReceiver
 {
     public GameObject mainPlayer;
 
@@ -19,6 +20,10 @@ public class SendToServer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+    }
+    public void OnReceiveMessage(MessageType type, object sender, object msg)
+    {
+        Debug.Log("Send AUA");
     }
 
     public void LogPosition(DateTime time, Vector3 pos)
