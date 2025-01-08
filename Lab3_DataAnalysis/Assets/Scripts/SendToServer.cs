@@ -1,3 +1,4 @@
+using Gamekit3D;
 using Gamekit3D.Message;
 using System;
 using System.Collections;
@@ -21,9 +22,28 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
     void Start()
     {
     }
-    public void OnReceiveMessage(MessageType type, object sender, object msg)
+    public void OnReceiveMessage(MessageType type, object sender, object msg) //Esto se triggerea cuando el personaje principal recibe daño
     {
-        Debug.Log("Send AUA");
+        Debug.Log("Message Recieved");
+
+        Damageable.DamageMessage dmgMsg = (Damageable.DamageMessage)msg;
+        Vector3 pos = new Vector3(mainPlayer.transform.position.x, mainPlayer.transform.position.y + 1, mainPlayer.transform.position.z);
+
+
+        LogHit(dmgMsg.damageSource, dmgMsg.direction, dmgMsg.damager, dmgMsg.amount, dmgMsg.throwing, type == MessageType.DEAD);
+
+    }
+
+    public void LogHit(Vector3 pos, Vector3 dir, MonoBehaviour source, int dmgAmount, bool isThrowing, bool isDeath)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("Position", Vec3ToString(pos));
+        form.AddField("Direction", Vec3ToString(dir));
+        form.AddField("Source", source.ToString());
+        form.AddField("Damage", dmgAmount.ToString());
+        form.AddField("isThrowing", isThrowing.ToString());
+        form.AddField("isDeath", isDeath.ToString());
+        Upload(form);
     }
 
     public void LogPosition(DateTime time, Vector3 pos)
@@ -81,7 +101,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
 
     IEnumerator Upload(WWWForm form)
     {
-        using (UnityWebRequest www = UnityWebRequest.Post("https://citmalumnes.upc.es/~xavierac8/new1.php", form))
+        using (UnityWebRequest www = UnityWebRequest.Post("https://citmalumnes.upc.es/~xavierac8/hit.php", form))
         {
             yield return www.SendWebRequest();
             if (www.result != UnityWebRequest.Result.Success)
@@ -98,7 +118,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
 
     IEnumerator ReceiveData()
     {
-        string url = "https://citmalumnes.upc.es/~xavierac8/new1.php";
+        string url = "https://citmalumnes.upc.es/~xavierac8/hit.php";
 
         using (UnityWebRequest www = UnityWebRequest.Get(url))
         {
