@@ -13,11 +13,42 @@ namespace Gamekit3D
         void OnTriggerEnter(Collider other)
         {
             var pc = other.GetComponent<PlayerController>();
+            
             if (pc != null)
             {
                 sendToServer.LogPositionOnHitLocal();
-                pc.Die(new Damageable.DamageMessage());
+                
+                var playerDamageable = pc.GetComponent<Damageable>();
+                if (playerDamageable != null)
+                {
+
+                    // Construct a proper DamageMessage
+                    Damageable.DamageMessage damageMessage = new Damageable.DamageMessage
+                    {
+                        amount = playerDamageable.currentHitPoints, 
+                        damageSource = new Vector3(sendToServer.mainPlayer.transform.position.x,
+                                                  sendToServer.mainPlayer.transform.position.y + 1,
+                                                  sendToServer.mainPlayer.transform.position.z),
+                        direction = Vector3.zero,
+                        damager = this,
+                        throwing = false
+                    };
+
+
+                    pc.Die(damageMessage);
+                }
+                else
+                {
+                    Debug.LogError("Player's Damageable component is missing.");
+                }
+
             }
+            else
+            {
+                Debug.LogError("PC is null");
+            }
+
+            
             if (audio != null)
             {
                 audio.transform.position = other.transform.position;

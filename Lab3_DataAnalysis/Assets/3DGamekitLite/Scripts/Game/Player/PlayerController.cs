@@ -11,8 +11,6 @@ namespace Gamekit3D
     {
         protected static PlayerController s_Instance;
 
-        public SendToServer sendToServer;
-
         public static PlayerController instance { get { return s_Instance; } }
 
         public bool respawning { get { return m_Respawning; } }
@@ -25,6 +23,7 @@ namespace Gamekit3D
         public float idleTimeout = 5f;            // How long before Ellen starts considering random idles.
         public bool canAttack;                    // Whether or not Ellen can swing her staff.
 
+        public SendToServer sendToServer;
         public CameraSettings cameraSettings;            // Reference used to determine the camera's direction.
         public MeleeWeapon meleeWeapon;                  // Reference used to (de)activate the staff when attacking. 
         public RandomAudioPlayer footstepPlayer;         // Random Audio Players used for various situations.

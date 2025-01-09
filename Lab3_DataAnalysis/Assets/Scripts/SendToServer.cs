@@ -27,8 +27,6 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         Debug.Log("Message Recieved");
 
         Damageable.DamageMessage dmgMsg = (Damageable.DamageMessage)msg;
-        Vector3 pos = new Vector3(mainPlayer.transform.position.x, mainPlayer.transform.position.y + 1, mainPlayer.transform.position.z);
-
 
         LogHit(dmgMsg.damageSource, dmgMsg.direction, dmgMsg.damager, dmgMsg.amount, dmgMsg.throwing, type == MessageType.DEAD);
 
@@ -36,14 +34,16 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
 
     public void LogHit(Vector3 pos, Vector3 dir, MonoBehaviour source, int dmgAmount, bool isThrowing, bool isDeath)
     {
+
         WWWForm form = new WWWForm();
         form.AddField("Position", Vec3ToString(pos));
         form.AddField("Direction", Vec3ToString(dir));
         form.AddField("Source", source.ToString());
         form.AddField("Damage", dmgAmount.ToString());
-        form.AddField("isThrowing", isThrowing.ToString());
-        form.AddField("isDeath", isDeath.ToString());
-        Upload(form);
+        form.AddField("isThrowing", Convert.ToInt32(isThrowing).ToString());
+        form.AddField("isDeath", Convert.ToInt32(isDeath).ToString());
+        StartCoroutine(Upload(form));           //Claro, poner solo "Upload(form)", siendo que es una corrutina y no se ejecuta de manera normal, no funciona. He de invocarla o añadirla a la lista de procesos de alguna manera
+    
     }
 
     public void LogPosition(DateTime time, Vector3 pos)
@@ -101,11 +101,12 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
 
     IEnumerator Upload(WWWForm form)
     {
-        using (UnityWebRequest www = UnityWebRequest.Post("https://citmalumnes.upc.es/~xavierac8/hit.php", form))
+        using (UnityWebRequest www = UnityWebRequest.Post("https://citmalumnes.upc.es/~xavierac8/Assignment3/hit.php", form))
         {
             yield return www.SendWebRequest();
             if (www.result != UnityWebRequest.Result.Success)
             {
+                Debug.Log("Upload error:");
                 Debug.Log(www.error);
             }
             else
@@ -118,7 +119,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
 
     IEnumerator ReceiveData()
     {
-        string url = "https://citmalumnes.upc.es/~xavierac8/hit.php";
+        string url = "https://citmalumnes.upc.es/~xavierac8/Assignment3/hit.php";
 
         using (UnityWebRequest www = UnityWebRequest.Get(url))
         {
