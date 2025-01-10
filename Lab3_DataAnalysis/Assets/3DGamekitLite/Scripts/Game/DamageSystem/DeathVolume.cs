@@ -16,8 +16,6 @@ namespace Gamekit3D
             
             if (pc != null)
             {
-                sendToServer.LogPositionOnHitLocal();
-                
                 var playerDamageable = pc.GetComponent<Damageable>();
                 if (playerDamageable != null)
                 {
@@ -33,22 +31,23 @@ namespace Gamekit3D
                         damager = this,
                         throwing = false
                     };
-
+                    //como el damage message de acido no llega bien a server, lo mandaremos directo
+                    sendToServer.LogHit(
+                        new Vector3(sendToServer.mainPlayer.transform.position.x,
+                                                  sendToServer.mainPlayer.transform.position.y + 1,
+                                                  sendToServer.mainPlayer.transform.position.z),
+                        Vector3.zero,
+                        this,
+                        5,
+                        false,
+                        true
+                        );
 
                     pc.Die(damageMessage);
                 }
-                else
-                {
-                    Debug.LogError("Player's Damageable component is missing.");
-                }
 
             }
-            else
-            {
-                Debug.LogError("PC is null");
-            }
 
-            
             if (audio != null)
             {
                 audio.transform.position = other.transform.position;

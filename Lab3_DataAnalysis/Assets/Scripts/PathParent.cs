@@ -5,6 +5,7 @@ using UnityEngine;
 public class PathParent : MonoBehaviour
 {
     public List<GameObject> dotsList;
+    public List<GameObject> lines;
 
     public GameObject spherePathDotReference;
 
@@ -19,9 +20,28 @@ public class PathParent : MonoBehaviour
         if (dotsList.Count > 0)
         {
             GameObject lastDot = dotsList[dotsList.Count - 1];
-            CreateLine(lastDot.transform.position, go.transform.position, lastDot.GetComponent<MeshRenderer>().material);
+            float distance = Vector3.Distance(lastDot.transform.position, go.transform.position);
+
+            if (distance <= 5)
+            {
+                CreateLine(lastDot.transform.position, go.transform.position, lastDot.GetComponent<MeshRenderer>().material);
+            }
         }
         dotsList.Add(go);
+    }
+
+    public void ClearAll()
+    {
+        foreach (var dot in dotsList)
+        {
+            if (dot != null) DestroyImmediate(dot);
+        }
+        dotsList.Clear();
+        foreach (var dot in lines)
+        {
+            if (dot != null) DestroyImmediate(dot);
+        }
+        lines.Clear();
     }
 
     public void CreateSphereOnPathDot(Vector3 pos)
@@ -41,6 +61,8 @@ public class PathParent : MonoBehaviour
         lineRenderer.SetPosition(0, startPos);
         lineRenderer.SetPosition(1, endPos);
         lineRenderer.useWorldSpace = true;
+
+        lines.Add(lineObject);
     }
 
     // Update is called once per frame

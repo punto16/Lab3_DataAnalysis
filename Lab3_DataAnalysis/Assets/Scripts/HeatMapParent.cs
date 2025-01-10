@@ -5,7 +5,7 @@ using UnityEngine;
 public class HeatMapParent : MonoBehaviour
 {
     public List<GameObject> cubeHeatMapsList;
-
+    public SendToServer sendToServer;
     public GameObject cubeHeatMapReference;
 
     [HideInInspector]
@@ -51,6 +51,15 @@ public class HeatMapParent : MonoBehaviour
         }
     }
 
+    public void ClearAll()
+    {
+        foreach (var go in cubeHeatMapsList)
+        {
+            if (go != null) DestroyImmediate(go);
+        }
+        cubeHeatMapsList.Clear();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -62,6 +71,11 @@ public class HeatMapParent : MonoBehaviour
         GameObject newDot = Instantiate(cubeHeatMapReference);
         newDot.GetComponent<CubeHeatMap>().MoveToHitPos(pos);
 
+        CheckCubesCollisions();
+    }
+
+    public void CheckCubesCollisions()
+    {
         foreach (var cubeHeatMap in cubeHeatMapsList)
         {
             cubeHeatMap.GetComponent<CubeHeatMap>().CheckCollisionWithOtherCubes();

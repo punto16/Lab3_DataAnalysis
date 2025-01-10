@@ -69,6 +69,29 @@ public class EditHeatMapParameters : Editor
             heatMapParent.OnEditParameters();
         }
 
+        GUILayout.Space(20);
+        if (GUILayout.Button("Load DataBase HeatMap"))
+        {
+            heatMapParent.sendToServer.ReceiveDataBaseHit();
+        }
+        if (GUILayout.Button("Clean Scene HeatMap"))
+        {
+            heatMapParent.ClearAll();
+        }
+        GUILayout.Space(10);
+        if (GUILayout.Button("Load DataBase Path"))
+        {
+            heatMapParent.sendToServer.ReceiveDataBasePath();
+        }
+        if (GUILayout.Button("Clean Scene Path"))
+        {
+            heatMapParent.sendToServer.pathParent.ClearAll();
+        }
+        GUILayout.Space(10);
+        if (GUILayout.Button("Fix HeatMap Colors"))
+        {
+            heatMapParent.CheckCubesCollisions();
+        }
 
         if (GUI.changed)
         {
