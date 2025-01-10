@@ -23,7 +23,6 @@ namespace Gamekit3D
         public float idleTimeout = 5f;            // How long before Ellen starts considering random idles.
         public bool canAttack;                    // Whether or not Ellen can swing her staff.
 
-        public SendToServer sendToServer;
         public CameraSettings cameraSettings;            // Reference used to determine the camera's direction.
         public MeleeWeapon meleeWeapon;                  // Reference used to (de)activate the staff when attacking. 
         public RandomAudioPlayer footstepPlayer;         // Random Audio Players used for various situations.
@@ -679,7 +678,7 @@ namespace Gamekit3D
             m_VerticalSpeed = 0f;
             m_Respawning = true;
             m_Damageable.isInvulnerable = true;
-            sendToServer.LogPositionOnHitLocal();
+
         }
     }
 }

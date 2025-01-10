@@ -18,9 +18,12 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
     private float sendPositionTime = 0.2f;
     private float sendPositionTimer = 0.0f;
 
+    int id;
+
     // Start is called before the first frame update
     void Start()
     {
+        id = GenerateRandomID();
     }
     public void OnReceiveMessage(MessageType type, object sender, object msg) //Esto se triggerea cuando el personaje principal recibe daño
     {
@@ -32,8 +35,10 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
 
     }
 
+
     public void LogHit(Vector3 pos, Vector3 dir, MonoBehaviour source, int dmgAmount, bool isThrowing, bool isDeath)
     {
+        string text = "";
 
         WWWForm form = new WWWForm();
         form.AddField("Position", Vec3ToString(pos));
@@ -42,8 +47,23 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         form.AddField("Damage", dmgAmount.ToString());
         form.AddField("isThrowing", Convert.ToInt32(isThrowing).ToString());
         form.AddField("isDeath", Convert.ToInt32(isDeath).ToString());
-        StartCoroutine(Upload(form));           //Claro, poner solo "Upload(form)", siendo que es una corrutina y no se ejecuta de manera normal, no funciona. He de invocarla o añadirla a la lista de procesos de alguna manera
-    
+        StartCoroutine(Upload(form, "https://citmalumnes.upc.es/~xavierac8/Assignment3/hit.php"));           //Claro, poner solo "Upload(form)", siendo que es una corrutina y no se ejecuta de manera normal, no funciona. He de invocarla o añadirla a la lista de procesos de alguna manera
+        
+        //READFORM es la funcion que lee de la database
+        
+        StartCoroutine(ReadForm(form, text, "https://citmalumnes.upc.es/~xavierac8/Assignment3/readhit.php")); //He hecho que cada vez que grabe lea
+        StartCoroutine(ReadForm(form, text, "https://citmalumnes.upc.es/~xavierac8/Assignment3/readpath.php")); //He hecho que cada vez que grabe lea
+        Debug.Log("Text data: ");
+        Debug.Log(text);
+    }
+
+    //Funcion que logea el path en la database
+    public void LogPath(Vector3 pos, int sessionID)
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("PathStep", Vec3ToString(pos));
+        form.AddField("SessionID", sessionID.ToString());
+        StartCoroutine(Upload(form, "https://citmalumnes.upc.es/~xavierac8/Assignment3/path.php"));
     }
 
     public void LogPosition(DateTime time, Vector3 pos)
@@ -52,7 +72,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         form.AddField("DataType", "Position");
         form.AddField("Position", Vec3ToString(pos));
         form.AddField("PositionTime", time.ToString());
-        Upload(form);
+        Upload(form, "https://citmalumnes.upc.es/~xavierac8/Assignment3/hit.php");
     }
 
     public void LogPositionOnHit()
@@ -64,7 +84,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         form.AddField("DataType", "PositionOnHit");
         form.AddField("PositionOnHit", Vec3ToString(pos));
         form.AddField("PositionTime", time.ToString());
-        Upload(form);
+        Upload(form, "https://citmalumnes.upc.es/~xavierac8/Assignment3/hit.php");
     }
 
     public void LogPositionLocal(DateTime time, Vector3 pos)
@@ -95,13 +115,16 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         if (sendPositionTimer >= sendPositionTime)
         {
             LogPositionLocal(DateTime.Now, new Vector3(mainPlayer.transform.position.x, mainPlayer.transform.position.y + 1, mainPlayer.transform.position.z));
+            
+            //Aqui logeamos el path en la database con cada step
+            LogPath(new Vector3(mainPlayer.transform.position.x, mainPlayer.transform.position.y + 1, mainPlayer.transform.position.z), id);
             sendPositionTimer = 0.0f;
         }
     }
 
-    IEnumerator Upload(WWWForm form)
+    IEnumerator Upload(WWWForm form, string url)
     {
-        using (UnityWebRequest www = UnityWebRequest.Post("https://citmalumnes.upc.es/~xavierac8/Assignment3/hit.php", form))
+        using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {
             yield return www.SendWebRequest();
             if (www.result != UnityWebRequest.Result.Success)
@@ -113,6 +136,25 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
             {
                 Debug.Log("Form Upload Completed");
                 Debug.Log(www.downloadHandler.text);
+            }
+        }
+    }
+
+    IEnumerator ReadForm(WWWForm form, string formData, string url)
+    {
+        using (UnityWebRequest www = UnityWebRequest.Post(url, form))
+        {
+            yield return www.SendWebRequest();
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Upload error:");
+                Debug.Log(www.error);
+            }
+            else
+            {
+                Debug.Log("Form Read Completed");
+                Debug.Log(www.downloadHandler.text);
+                formData = www.downloadHandler.text;
             }
         }
     }
@@ -204,6 +246,12 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
             }
         }
         return new Vector3(x, y, z);
+    }
+
+    public int GenerateRandomID()
+    {
+        var r = new System.Random();
+        return r.Next(1000000000, 2147483647);
     }
 
 }
