@@ -21,8 +21,7 @@ public class PathParent : MonoBehaviour
         {
             GameObject lastDot = dotsList[dotsList.Count - 1];
             float distance = Vector3.Distance(lastDot.transform.position, go.transform.position);
-
-            if (distance <= 5)
+            if (distance <= 10)
             {
                 CreateLine(lastDot.transform.position, go.transform.position, lastDot.GetComponent<MeshRenderer>().material);
             }
@@ -46,6 +45,13 @@ public class PathParent : MonoBehaviour
 
     public void CreateSphereOnPathDot(Vector3 pos)
     {
+        if (dotsList.Count > 0)
+        {
+            GameObject lastDot = dotsList[dotsList.Count - 1];
+            float distance = Vector3.Distance(lastDot.transform.position, transform.position);
+            if (distance <= 1) return;
+        }
+
         GameObject newDot = Instantiate(spherePathDotReference);
         newDot.GetComponent<SpherePathDot>().MoveToPathPos(pos);
     }

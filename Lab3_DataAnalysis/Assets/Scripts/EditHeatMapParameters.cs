@@ -100,6 +100,7 @@ public class EditHeatMapParameters : Editor
         if (GUILayout.Button("Fix HeatMap Colors"))
         {
             heatMapParent.CheckCubesCollisions();
+            heatMapParent.CheckCubesCollisions(true);
         }
 
         if (GUI.changed)

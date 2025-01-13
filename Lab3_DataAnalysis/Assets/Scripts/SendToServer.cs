@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Analytics;
 using UnityEngine.Networking;
@@ -16,7 +17,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
     public HeatMapParent heatMapParent;
     public PathParent pathParent;
 
-    private float sendPositionTime = 0.2f;
+    private float sendPositionTime = 0.5f;
     private float sendPositionTimer = 0.0f;
 
     int id;
@@ -71,6 +72,13 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
 
     public void LogPath(Vector3 pos, int sessionID)
     {
+        if (pathParent.dotsList.Count > 0)
+        {
+            GameObject lastDot = pathParent.dotsList[pathParent.dotsList.Count - 1];
+            float distance = Vector3.Distance(lastDot.transform.position, pos);
+            if (distance <= 1) return;
+        }
+
         WWWForm form = new WWWForm();
         form.AddField("PathStep", Vec3ToString(pos));
         form.AddField("SessionID", sessionID.ToString());
@@ -106,6 +114,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         {
             LogPath(new Vector3(mainPlayer.transform.position.x, mainPlayer.transform.position.y + 1, mainPlayer.transform.position.z), id);
             heatMapParent.CheckCubesCollisions();
+            heatMapParent.CheckCubesCollisions(true);
             sendPositionTimer = 0.0f;
         }
     }
@@ -156,6 +165,8 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         {
             if (line.StartsWith("Connected to database"))
                 continue;
+            else if (line.StartsWith("No data found"))
+                return;
 
             Vector3 position = new Vector3(0, 0, 0);
             Vector3 direction = new Vector3(0, 0, 0);
@@ -220,6 +231,8 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         {
             if (line.StartsWith("Connected to database"))
                 continue;
+            else if (line.StartsWith("No data found"))
+                return;
 
             Vector3 position = new Vector3(0, 0, 0);
             int sessionID = 0;
@@ -256,6 +269,8 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         {
             if (line.StartsWith("Connected to database"))
                 continue;
+            else if (line.StartsWith("No data found"))
+                return;
 
             Vector3 position = new Vector3(0, 0, 0);
             int sessionID = 0;
