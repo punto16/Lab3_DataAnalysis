@@ -79,6 +79,15 @@ public class EditHeatMapParameters : Editor
             heatMapParent.ClearAll();
         }
         GUILayout.Space(10);
+        if (GUILayout.Button("Load DataBase KillMap"))
+        {
+            heatMapParent.sendToServer.ReceiveDataBaseKill();
+        }
+        if (GUILayout.Button("Clean Scene KillMap"))
+        {
+            heatMapParent.ClearAllKillMap();
+        }
+        GUILayout.Space(10);
         if (GUILayout.Button("Load DataBase Path"))
         {
             heatMapParent.sendToServer.ReceiveDataBasePath();

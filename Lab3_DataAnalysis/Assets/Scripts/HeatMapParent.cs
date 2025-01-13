@@ -5,6 +5,7 @@ using UnityEngine;
 public class HeatMapParent : MonoBehaviour
 {
     public List<GameObject> cubeHeatMapsList;
+    public List<GameObject> cubeKillMapsList;
     public SendToServer sendToServer;
     public GameObject cubeHeatMapReference;
 
@@ -31,9 +32,17 @@ public class HeatMapParent : MonoBehaviour
         {
             cubeHeatMap.GetComponent<Transform>().localScale = newScale;
         }
+        foreach (var cubeHeatMap in cubeKillMapsList)
+        {
+            cubeHeatMap.GetComponent<Transform>().localScale = newScale;
+        }
         foreach (var cubeHeatMap in cubeHeatMapsList)
         {
             cubeHeatMap.GetComponent<CubeHeatMap>().CheckCollisionWithOtherCubes();
+        }
+        foreach (var cubeHeatMap in cubeKillMapsList)
+        {
+            cubeHeatMap.GetComponent<CubeHeatMap>().CheckCollisionWithOtherCubes(true);
         }
     }
 
@@ -60,25 +69,35 @@ public class HeatMapParent : MonoBehaviour
         cubeHeatMapsList.Clear();
     }
 
+    public void ClearAllKillMap()
+    {
+        foreach (var go in cubeKillMapsList)
+        {
+            if (go != null) DestroyImmediate(go);
+        }
+        cubeKillMapsList.Clear();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         cubeHeatMapsList = new List<GameObject>();
+        cubeKillMapsList = new List<GameObject>();
     }
 
-    public void CreateCubeOnHeatMap(Vector3 pos)
+    public void CreateCubeOnHeatMap(Vector3 pos, bool kill = false)
     {
         GameObject newDot = Instantiate(cubeHeatMapReference);
-        newDot.GetComponent<CubeHeatMap>().MoveToHitPos(pos);
+        newDot.GetComponent<CubeHeatMap>().MoveToHitPos(pos, kill);
 
-        CheckCubesCollisions();
+        CheckCubesCollisions(kill);
     }
 
-    public void CheckCubesCollisions()
+    public void CheckCubesCollisions(bool kill = false)
     {
-        foreach (var cubeHeatMap in cubeHeatMapsList)
+        foreach (var cubeHeatMap in (kill ? cubeKillMapsList : cubeHeatMapsList))
         {
-            cubeHeatMap.GetComponent<CubeHeatMap>().CheckCollisionWithOtherCubes();
+            cubeHeatMap.GetComponent<CubeHeatMap>().CheckCollisionWithOtherCubes(kill);
         }
     }
 

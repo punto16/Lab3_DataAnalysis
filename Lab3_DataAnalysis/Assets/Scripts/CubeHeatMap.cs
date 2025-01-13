@@ -20,18 +20,21 @@ public class CubeHeatMap : MonoBehaviour
 
     }
 
-    public void MoveToHitPos(Vector3 pos)
+    public void MoveToHitPos(Vector3 pos, bool kill = false)
     {
         gameObject.transform.position = pos;
-        heatMapParent.cubeHeatMapsList.Add(gameObject);
+        if (kill)
+            heatMapParent.cubeKillMapsList.Add(gameObject);
+        else
+            heatMapParent.cubeHeatMapsList.Add(gameObject);
     }
 
-    public void CheckCollisionWithOtherCubes()
+    public void CheckCollisionWithOtherCubes(bool kill = false)
     {
         int collisions = 0;
-        for (int i = 0; i < heatMapParent.cubeHeatMapsList.Count; i++)
+        for (int i = 0; i < (kill ? heatMapParent.cubeKillMapsList.Count : heatMapParent.cubeHeatMapsList.Count); i++)
         {
-            GameObject otherObject = heatMapParent.cubeHeatMapsList[i];
+            GameObject otherObject = (kill ? heatMapParent.cubeKillMapsList[i] : heatMapParent.cubeHeatMapsList[i]);
             if (otherObject == gameObject) continue;
 
             Collider thisCollider = gameObject.GetComponent<Collider>();

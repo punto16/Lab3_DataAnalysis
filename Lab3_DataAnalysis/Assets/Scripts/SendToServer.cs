@@ -48,6 +48,13 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         StartCoroutine(ReadForm(form, "https://citmalumnes.upc.es/~xavierac8/Assignment3/readpath.php", false));
     }
 
+    public void ReceiveDataBaseKill()
+    {
+        heatMapParent.ClearAllKillMap();
+        WWWForm form = new WWWForm();
+        StartCoroutine(ReadForm(form, "https://citmalumnes.upc.es/~xavierac8/Assignment3/readkill.php", false, true));
+    }
+
     public void LogHit(Vector3 pos, Vector3 dir, MonoBehaviour source, int dmgAmount, bool isThrowing, bool isDeath)
     {
         WWWForm form = new WWWForm();
@@ -70,6 +77,16 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         StartCoroutine(Upload(form, "https://citmalumnes.upc.es/~xavierac8/Assignment3/path.php"));
 
         pathParent.CreateSphereOnPathDot(pos);
+    }
+
+    public void LogKill()
+    {
+        WWWForm form = new WWWForm();
+        form.AddField("PositionKill", Vec3ToString(this.mainPlayer.transform.position));
+        form.AddField("SessionID", this.id.ToString());
+        StartCoroutine(Upload(form, "https://citmalumnes.upc.es/~xavierac8/Assignment3/kill.php"));
+
+        heatMapParent.CreateCubeOnHeatMap(this.mainPlayer.transform.position, true);
     }
 
     private string Vec3ToString(Vector3 pos)
@@ -105,7 +122,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
         }
     }
 
-    IEnumerator ReadForm(WWWForm form, string url, bool isHit)
+    IEnumerator ReadForm(WWWForm form, string url, bool isHit, bool isKill = false)
     {
         using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {
@@ -116,10 +133,17 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
             }
             else
             {
-                if (isHit)
-                    ProcessReceivedDataHit(www.downloadHandler.text);
+                if (isKill)
+                {
+                    ProcessReceivedDataKill(www.downloadHandler.text);
+                }
                 else
-                    ProcessReceivedDataPath(www.downloadHandler.text);
+                {
+                    if (isHit)
+                        ProcessReceivedDataHit(www.downloadHandler.text);
+                    else
+                        ProcessReceivedDataPath(www.downloadHandler.text);
+                }
             }
         }
     }
@@ -133,7 +157,7 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
             if (line.StartsWith("Connected to database"))
                 continue;
 
-            Vector3 position = new Vector3(0,0,0);
+            Vector3 position = new Vector3(0, 0, 0);
             Vector3 direction = new Vector3(0, 0, 0);
             string source = "";
             int damage = 0;
@@ -221,6 +245,42 @@ public class SendToServer : MonoBehaviour, IMessageReceiver
             }
             //function to process 1 data
             pathParent.CreateSphereOnPathDot(position);
+        }
+    }
+
+    void ProcessReceivedDataKill(string input)
+    {
+        var lines = input.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var line in lines)
+        {
+            if (line.StartsWith("Connected to database"))
+                continue;
+
+            Vector3 position = new Vector3(0, 0, 0);
+            int sessionID = 0;
+
+            var parts = line.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var part in parts)
+            {
+                var trimmedPart = part.Trim();
+
+                if (trimmedPart.StartsWith("PositionKill:"))
+                {
+                    position = ParseVec3(trimmedPart.Replace("PositionKill:", string.Empty).Trim());
+                }
+                else if (trimmedPart.StartsWith("SessionID:"))
+                {
+                    if (int.TryParse(trimmedPart.Replace("SessionID:", string.Empty).Trim(), out int sessionID1))
+                    {
+                        sessionID = sessionID1;
+                    }
+                }
+
+            }
+            //function to process 1 data
+            heatMapParent.CreateCubeOnHeatMap(position, true);
         }
     }
 
